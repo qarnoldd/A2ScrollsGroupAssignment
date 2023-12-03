@@ -1,0 +1,73 @@
+plugins {
+    // Apply the application plugin to add support for building a CLI application in Java.
+    id 'java'
+    id 'jacoco'
+    id 'application'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // // Use JUnit Jupiter for testing.
+    // testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+
+    // testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // // This dependency is used by the application.
+    // implementation 'com.google.guava:guava:31.1-jre'
+
+    implementation 'junit:junit:4.13.1'
+    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    implementation 'org.xerial:sqlite-jdbc:3.34.0'
+
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:3.6.0'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "failed", "passed", "skipped", "standardError","standardOut", "started"
+    }
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+application {
+    // Define the main class for the application.
+    mainClass = 'lab13.qifan.group2.a2.App'
+}
+
+tasks.named('test') {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes 'main-Class': 'lab13.qifan.group2.a2.App'
+    }
+}
+
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                     exclude: 'lab13/qifan/group2/a2/ui/**')
+        }))
+    }
+    
+    reports {
+        xml.required = false
+        csv.required = false
+    }
+}
+
+run {
+    standardInput = System.in //When doing gradle run, it will ask for input (for use in logins and such)
+}
